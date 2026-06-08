@@ -1,0 +1,24 @@
+{
+  "seed": 7,
+  "tokenizer_name": null,
+  "prompt_mode": "growing_history",
+  "num_workflows": 2,
+  "duration_s": 5,
+  "max_events": 12,
+  "agents": ["planner", "toolcaller", "executor", "verifier"],
+  "workflow_graph": ["planner", "toolcaller", "planner", "executor", "verifier", "planner"],
+  "prefix_len_tokens": 64,
+  "suffix_len_tokens": [16],
+  "history_assistant_len_tokens": "max_tokens",
+  "history_observation_len_tokens": 24,
+  "history_max_prefix_len_tokens": 160,
+  "mean_think_time_s": 0.5,
+  "think_time_jitter_s": 0.1,
+  "branch_fanout": 1,
+  "max_tokens_dist": {
+    "8": 0.5,
+    "16": 0.5
+  },
+  "temperature": 0.0,
+  "top_p": 1.0
+}

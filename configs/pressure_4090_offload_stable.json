@@ -1,0 +1,29 @@
+{
+  "seed": 41,
+  "tokenizer_name": "Qwen/Qwen3-8B",
+  "tokenizer_local_files_only": false,
+  "num_workflows": 96,
+  "duration_s": 180,
+  "max_events": 768,
+  "agents": ["planner", "toolcaller", "executor", "verifier"],
+  "workflow_graph": ["planner", "toolcaller", "planner", "executor", "verifier", "planner"],
+  "prefix_len_tokens": 8192,
+  "suffix_len_tokens": [1024, 2048],
+  "mean_think_time_s": 1.0,
+  "think_time_jitter_s": 0.35,
+  "burst_probability": 0.12,
+  "burst_delay_multiplier": 0.25,
+  "branch_fanout": 1,
+  "max_tokens_dist": {
+    "toolcaller": {
+      "512": 0.75,
+      "1024": 0.25
+    },
+    "default": {
+      "512": 0.35,
+      "1024": 0.65
+    }
+  },
+  "temperature": 0.0,
+  "top_p": 1.0
+}

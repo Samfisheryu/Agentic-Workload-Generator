@@ -1,0 +1,21 @@
+{
+  "seed": 7,
+  "tokenizer_name": null,
+  "num_workflows": 4,
+  "duration_s": 20,
+  "max_events": 80,
+  "agents": ["planner", "toolcaller", "executor", "verifier"],
+  "workflow_graph": ["planner", "toolcaller", "planner", "executor", "verifier", "planner"],
+  "prefix_len_tokens": 512,
+  "suffix_len_tokens": [64, 128],
+  "mean_think_time_s": 0.5,
+  "think_time_jitter_s": 0.1,
+  "branch_fanout": 1,
+  "max_tokens_dist": {
+    "16": 0.5,
+    "32": 0.5
+  },
+  "temperature": 0.0,
+  "top_p": 1.0
+}
+
