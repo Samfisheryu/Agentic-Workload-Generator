@@ -54,7 +54,7 @@ python "${GENERATOR_DIR}/analyze_trace.py" \
   2>&1 | tee "${LOG_DIR}/analyze_trace.log"
 
 python "${GENERATOR_DIR}/monitoring/init_run.py" \
-  --mode hiddencache-lmcache-offload-pressure-tp2 \
+  --mode agentic-lmcache-offload-pressure-tp2 \
   --dataset "${RUN_DIR}/trace.jsonl" \
   --model "${MODEL}" \
   --vllm-url http://127.0.0.1:8000/v1 \
@@ -218,7 +218,7 @@ wait_monitors
 echo "[run] plotting"
 conda deactivate || true
 MPLCONFIGDIR=/tmp/matplotlib python \
-  "${GENERATOR_DIR}/monitoring/plot_hiddencache_run.py" \
+  "${GENERATOR_DIR}/monitoring/plot_workload_run.py" \
   --run-dir "${RUN_DIR}" \
   2>&1 | tee "${LOG_DIR}/plot.log"
 

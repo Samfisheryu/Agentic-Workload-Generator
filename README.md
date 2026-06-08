@@ -1,8 +1,10 @@
-# HiddenCache Workload Generator
+# Agentic Workload Generator
 
-This directory contains a trace-driven workload generator for profiling agentic workloads on `vLLM + LMCache`.
+This repository contains a trace-driven workload generator for simulating configurable agentic workloads. It is meant for serving-system experiments and profiling, where you want controlled agent behavior instead of noise from a full real agent framework.
 
-The generator is CPU-side. It creates controlled request traces with stable long prefixes, dynamic suffixes, workflow re-entry, branch fanout, growing agent history, and short output steps. The real serving backend is responsible for prefill, decode, KV cache, LMCache load/offload, and scheduling behavior.
+The generator is CPU-side. It creates controlled request traces with stable long prefixes, dynamic suffixes, workflow re-entry, branch fanout, growing agent history, and short output steps. A real serving backend is responsible for prefill, decode, KV cache, offload, scheduling, and hardware behavior.
+
+The replay client targets OpenAI-compatible completion/chat APIs, so the core generator is not tied to one backend. The bundled LMCache script is an example profiling harness for `vLLM + LMCache`.
 
 ## Prompt Modes
 
@@ -37,13 +39,13 @@ common.py             Shared config, tokenizer, JSONL, and sampling helpers.
 ```bash
 python generate_trace.py \
   --config configs/sanity_small.json \
-  --out-dir /tmp/hc_sanity
+  --out-dir /tmp/agentic_sanity
 ```
 
 Outputs:
 
 ```text
-/tmp/hc_sanity/
+/tmp/agentic_sanity/
   config_resolved.json
   manifest.json
   prefix_bank.jsonl
@@ -54,13 +56,13 @@ Outputs:
 
 ```bash
 python analyze_trace.py \
-  --trace /tmp/hc_sanity/trace.jsonl
+  --trace /tmp/agentic_sanity/trace.jsonl
 ```
 
 Outputs:
 
 ```text
-/tmp/hc_sanity/
+/tmp/agentic_sanity/
   trace_summary.json
   prefix_reuse_counts.csv
 ```
@@ -71,9 +73,9 @@ Start vLLM separately, then run:
 
 ```bash
 python replay_trace.py \
-  --trace /tmp/hc_sanity/trace.jsonl \
-  --prefix-bank /tmp/hc_sanity/prefix_bank.jsonl \
-  --results /tmp/hc_sanity/client_results.jsonl \
+  --trace /tmp/agentic_sanity/trace.jsonl \
+  --prefix-bank /tmp/agentic_sanity/prefix_bank.jsonl \
+  --results /tmp/agentic_sanity/client_results.jsonl \
   --base-url http://localhost:8000/v1 \
   --model Qwen/Qwen3-8B \
   --mode open-loop \
@@ -117,4 +119,4 @@ Implemented:
 
 Not implemented yet:
 
-- mini-swe-agent calibration
+- calibration against real agent traces and frameworks

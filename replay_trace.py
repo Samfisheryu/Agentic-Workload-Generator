@@ -233,7 +233,7 @@ def run_closed_loop(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Replay a HiddenCache trace against vLLM.")
+    parser = argparse.ArgumentParser(description="Replay an agentic workload trace against an OpenAI-compatible backend.")
     parser.add_argument("--trace", required=True, help="Path to trace.jsonl.")
     parser.add_argument("--prefix-bank", required=True, help="Path to prefix_bank.jsonl.")
     parser.add_argument("--results", required=True, help="Output client_results.jsonl.")

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate plots for one HiddenCache workload-generator run."""
+"""Generate plots for one agentic workload-generator run."""
 
 from __future__ import annotations
 

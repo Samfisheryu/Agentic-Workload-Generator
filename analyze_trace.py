@@ -92,7 +92,7 @@ def write_prefix_counts(path: Path, events: list[dict[str, Any]]) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Analyze a generated HiddenCache trace.")
+    parser = argparse.ArgumentParser(description="Analyze a generated agentic workload trace.")
     parser.add_argument("--trace", required=True, help="Path to trace.jsonl.")
     parser.add_argument("--out-dir", default=None, help="Output directory. Defaults to trace dir.")
     parser.add_argument(

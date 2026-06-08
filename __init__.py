@@ -1,2 +1,1 @@
-"""Trace-driven workload generator for HiddenCache profiling."""
-
+"""Trace-driven generator for configurable agentic workload profiling."""

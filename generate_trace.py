@@ -410,7 +410,7 @@ def generate_events(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Generate HiddenCache workload traces.")
+    parser = argparse.ArgumentParser(description="Generate configurable agentic workload traces.")
     parser.add_argument("--config", type=str, default=None, help="JSON/YAML config path.")
     parser.add_argument("--out-dir", type=str, required=True, help="Output run directory.")
     args = parser.parse_args()
@@ -437,7 +437,7 @@ def main() -> None:
     dump_json(
         out_dir / "manifest.json",
         {
-            "generator": "hiddencache.workload_generator.generate_trace",
+            "generator": "agentic_workload_generator.generate_trace",
             "num_prefixes": len(prefix_bank),
             "num_events": len(events),
             "tokenizer_kind": tokenizer.kind,
