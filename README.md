@@ -86,6 +86,27 @@ By default, replay uses streaming responses so it can record `ttft_s`. Use `--no
 
 The bundled LMCache run script defaults to `REPLAY_MODE=closed-loop`, which is closer to a real agent: each workflow waits for the previous step to finish before issuing the next step. Override with `REPLAY_MODE=open-loop` when you want a fixed-arrival-rate backend pressure test.
 
+## LMCache CPU/Disk Harness
+
+`run_lmcache_offload_pressure.sh` starts `vLLM + LMCache`, records metrics, and plots the run. Its default LMCache storage hierarchy is:
+
+```text
+CPU tier:  100 GB
+Disk tier: 500 GB
+Disk path: /data1/lmcache_kv/${RUN_ID}/gpu0,/data1/lmcache_kv/${RUN_ID}/gpu1
+```
+
+Override with environment variables when needed:
+
+```bash
+LMCACHE_CPU_SIZE_GB=64 \
+LMCACHE_DISK_SIZE_GB=250 \
+LMCACHE_DISK_PATH=/data1/lmcache_kv/shared \
+./run_lmcache_offload_pressure.sh
+```
+
+The script fails early if the disk path is not writable.
+
 ## Tokenizer Control
 
 Set `tokenizer_name` in the config to the target model tokenizer when real token length matters:

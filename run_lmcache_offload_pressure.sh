@@ -13,9 +13,13 @@ LOG_DIR="${RUN_DIR}/logs"
 VLLM_MAX_MODEL_LEN="${VLLM_MAX_MODEL_LEN:-12288}"
 VLLM_GPU_MEMORY_UTILIZATION="${VLLM_GPU_MEMORY_UTILIZATION:-0.80}"
 VLLM_MAX_NUM_SEQS="${VLLM_MAX_NUM_SEQS:-64}"
-VLLM_KV_OFFLOAD_GB="${VLLM_KV_OFFLOAD_GB:-32}"
 VLLM_DISABLE_LOG_STATS="${VLLM_DISABLE_LOG_STATS:-1}"
-LMCACHE_CPU_SIZE_GB="${LMCACHE_CPU_SIZE_GB:-${VLLM_KV_OFFLOAD_GB}}"
+LMCACHE_CPU_SIZE_GB="${LMCACHE_CPU_SIZE_GB:-100}"
+LMCACHE_DISK_SIZE_GB="${LMCACHE_DISK_SIZE_GB:-500}"
+LMCACHE_DISK_PATH="${LMCACHE_DISK_PATH:-/data1/lmcache_kv/${RUN_ID}/gpu0,/data1/lmcache_kv/${RUN_ID}/gpu1}"
+LMCACHE_DISK_PATH_SHARDING="${LMCACHE_DISK_PATH_SHARDING:-by_gpu}"
+LMCACHE_CONFIG_FILE="${LMCACHE_CONFIG_FILE:-${RUN_DIR}/lmcache_config.yaml}"
+VLLM_KV_OFFLOAD_GB="${VLLM_KV_OFFLOAD_GB:-${LMCACHE_CPU_SIZE_GB}}"
 REPLAY_MAX_WORKERS="${REPLAY_MAX_WORKERS:-512}"
 REPLAY_TIMEOUT_S="${REPLAY_TIMEOUT_S:-2400}"
 REPLAY_MODE="${REPLAY_MODE:-closed-loop}"
@@ -36,12 +40,43 @@ export LMCACHE_INTERNAL_API_SERVER_PORT_START=6999
 export LMCACHE_INTERNAL_API_SERVER_HOST=127.0.0.1
 export LMCACHE_MAX_LOCAL_CPU_SIZE="${LMCACHE_CPU_SIZE_GB}"
 export LMCACHE_LOCAL_CPU=true
+export LMCACHE_LOCAL_DISK="${LMCACHE_DISK_PATH}"
+export LMCACHE_LOCAL_DISK_PATH_SHARDING="${LMCACHE_DISK_PATH_SHARDING}"
+export LMCACHE_MAX_LOCAL_DISK_SIZE="${LMCACHE_DISK_SIZE_GB}"
+export LMCACHE_CONFIG_FILE
+
+IFS=',' read -ra LMCACHE_DISK_PATHS <<< "${LMCACHE_DISK_PATH}"
+for disk_path in "${LMCACHE_DISK_PATHS[@]}"; do
+  if ! mkdir -p "${disk_path}" 2>/dev/null; then
+    echo "[run] failed to create LMCache disk path: ${disk_path}" >&2
+    echo "[run] please remount /data1 read-write or set LMCACHE_DISK_PATH to a writable path." >&2
+    exit 1
+  fi
+done
+
+cat > "${LMCACHE_CONFIG_FILE}" <<EOF
+chunk_size: 256
+local_cpu: true
+max_local_cpu_size: ${LMCACHE_CPU_SIZE_GB}
+local_disk: ${LMCACHE_DISK_PATH}
+local_disk_path_sharding: ${LMCACHE_DISK_PATH_SHARDING}
+max_local_disk_size: ${LMCACHE_DISK_SIZE_GB}
+remote_url: null
+remote_serde: naive
+internal_api_server_enabled: true
+internal_api_server_port_start: 6999
+internal_api_server_host: 127.0.0.1
+EOF
 
 rm -rf "${PROMETHEUS_MULTIPROC_DIR}"
 mkdir -p "${PROMETHEUS_MULTIPROC_DIR}"
 
 echo "[run] run_id=${RUN_ID}"
 echo "[run] run_dir=${RUN_DIR}"
+echo "[run] lmcache_config=${LMCACHE_CONFIG_FILE}"
+echo "[run] lmcache_cpu_gb=${LMCACHE_CPU_SIZE_GB}"
+echo "[run] lmcache_disk_gb=${LMCACHE_DISK_SIZE_GB}"
+echo "[run] lmcache_disk_path=${LMCACHE_DISK_PATH}"
 echo "[run] generating trace"
 python "${GENERATOR_DIR}/generate_trace.py" \
   --config "${CONFIG}" \
@@ -62,7 +97,7 @@ python "${GENERATOR_DIR}/monitoring/init_run.py" \
   --run-id "${RUN_ID}" \
   --max-tokens 512 \
   --temperature 0.0 \
-  --notes "TP2 LMCache offload pressure: 8K prefixes, 128 workflows, 1536 events, ignore_eos, internal LMCache metrics enabled" \
+  --notes "TP2 LMCache offload pressure: CPU ${LMCACHE_CPU_SIZE_GB}GB, disk ${LMCACHE_DISK_SIZE_GB}GB at ${LMCACHE_DISK_PATH}, ignore_eos, internal LMCache metrics enabled" \
   2>&1 | tee "${LOG_DIR}/init_run.log"
 
 VLLM_PID=""
