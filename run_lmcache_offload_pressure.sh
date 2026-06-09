@@ -2,14 +2,17 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROOT_DIR="${ROOT_DIR:-$(cd "${SCRIPT_DIR}/../.." && pwd)}"
+ROOT_DIR="${ROOT_DIR:-${SCRIPT_DIR}}"
 GENERATOR_DIR="${GENERATOR_DIR:-${SCRIPT_DIR}}"
-VLLM_DIR="${VLLM_DIR:-${ROOT_DIR}/HF_Prometheus}"
+VLLM_DIR="${VLLM_DIR:-${ROOT_DIR}}"
 CONFIG="${CONFIG:-${GENERATOR_DIR}/configs/pressure_4090_offload.json}"
 MODEL="${MODEL:-Qwen/Qwen3-8B}"
 RUN_ID="${1:-lmcache_tp2_offload_pressure_$(date +%Y%m%d-%H%M%S)}"
 RUN_DIR="${RUN_DIR:-${GENERATOR_DIR}/results/${RUN_ID}}"
 LOG_DIR="${RUN_DIR}/logs"
+CONDA_ENV="${CONDA_ENV:-}"
+CONDA_SH="${CONDA_SH:-}"
+CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0,1}"
 VLLM_MAX_MODEL_LEN="${VLLM_MAX_MODEL_LEN:-16384}"
 VLLM_GPU_MEMORY_UTILIZATION="${VLLM_GPU_MEMORY_UTILIZATION:-0.80}"
 VLLM_MAX_NUM_SEQS="${VLLM_MAX_NUM_SEQS:-64}"
@@ -27,13 +30,27 @@ REPLAY_MODE="${REPLAY_MODE:-closed-loop}"
 mkdir -p "${LOG_DIR}"
 cd "${ROOT_DIR}"
 
-source /home/nengneng/miniconda3/etc/profile.d/conda.sh
-set +u
-conda activate agent-dmi
-set -u
+if [[ -n "${CONDA_ENV}" ]]; then
+  if [[ -n "${CONDA_SH}" ]]; then
+    source "${CONDA_SH}"
+  elif command -v conda >/dev/null 2>&1; then
+    source "$(conda info --base)/etc/profile.d/conda.sh"
+  elif [[ -f "${HOME}/miniconda3/etc/profile.d/conda.sh" ]]; then
+    source "${HOME}/miniconda3/etc/profile.d/conda.sh"
+  elif [[ -f "${HOME}/anaconda3/etc/profile.d/conda.sh" ]]; then
+    source "${HOME}/anaconda3/etc/profile.d/conda.sh"
+  else
+    echo "[run] CONDA_ENV=${CONDA_ENV} was set, but conda.sh was not found." >&2
+    echo "[run] please set CONDA_SH=/path/to/conda.sh or activate the environment before running." >&2
+    exit 1
+  fi
+  set +u
+  conda activate "${CONDA_ENV}"
+  set -u
+fi
 
 export PYTHONHASHSEED=0
-export CUDA_VISIBLE_DEVICES=0,1
+export CUDA_VISIBLE_DEVICES
 export PROMETHEUS_MULTIPROC_DIR="/tmp/lmcache_prometheus_${RUN_ID}"
 export LMCACHE_INTERNAL_API_SERVER_ENABLED=true
 export LMCACHE_INTERNAL_API_SERVER_PORT_START=6999
@@ -44,6 +61,7 @@ export LMCACHE_LOCAL_DISK="${LMCACHE_DISK_PATH}"
 export LMCACHE_LOCAL_DISK_PATH_SHARDING="${LMCACHE_DISK_PATH_SHARDING}"
 export LMCACHE_MAX_LOCAL_DISK_SIZE="${LMCACHE_DISK_SIZE_GB}"
 export LMCACHE_CONFIG_FILE
+export LMCACHE_KV_WAIT_TRACE="${RUN_DIR}/kv_wait_trace.jsonl"
 
 IFS=',' read -ra LMCACHE_DISK_PATHS <<< "${LMCACHE_DISK_PATH}"
 for disk_path in "${LMCACHE_DISK_PATHS[@]}"; do
@@ -77,6 +95,7 @@ echo "[run] lmcache_config=${LMCACHE_CONFIG_FILE}"
 echo "[run] lmcache_cpu_gb=${LMCACHE_CPU_SIZE_GB}"
 echo "[run] lmcache_disk_gb=${LMCACHE_DISK_SIZE_GB}"
 echo "[run] lmcache_disk_path=${LMCACHE_DISK_PATH}"
+echo "[run] kv_wait_trace=${LMCACHE_KV_WAIT_TRACE}"
 echo "[run] generating trace"
 python "${GENERATOR_DIR}/generate_trace.py" \
   --config "${CONFIG}" \
@@ -251,7 +270,12 @@ stop_monitors
 wait_monitors
 
 echo "[run] plotting"
-conda deactivate || true
+if [[ -n "${CONDA_ENV}" ]] && command -v conda >/dev/null 2>&1; then
+  conda deactivate || true
+fi
+python "${GENERATOR_DIR}/monitoring/summarize_kv_wait_trace.py" \
+  --run-dir "${RUN_DIR}" \
+  2>&1 | tee "${LOG_DIR}/summarize_kv_wait_trace.log"
 MPLCONFIGDIR=/tmp/matplotlib python \
   "${GENERATOR_DIR}/monitoring/plot_workload_run.py" \
   --run-dir "${RUN_DIR}" \

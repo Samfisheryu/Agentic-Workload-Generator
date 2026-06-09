@@ -1,3 +1,4 @@
+EXPERIMENTS.md
 __pycache__/
 *.py[cod]
 *.pyo
@@ -15,3 +16,4 @@ plots/
 .env
 .venv/
 venv/
+.DS_Store

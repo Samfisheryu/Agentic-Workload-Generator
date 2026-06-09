@@ -1,0 +1,146 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1800 560" width="1800" height="560">
+  <defs>
+    <marker id="arrow-gray" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#333333"/>
+    </marker>
+    <marker id="arrow-blue" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#2F6FED"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1800" height="560" fill="#ffffff"/>
+
+  <g font-family="Inter, Arial, sans-serif" fill="#222222">
+    <text x="170" y="58" font-size="23" font-weight="700" text-anchor="middle">Configuration</text>
+
+    <g stroke="#333333" stroke-width="1.6" fill="#ffffff">
+      <rect x="30" y="88" width="280" height="62" rx="6"/>
+      <rect x="30" y="168" width="280" height="62" rx="6"/>
+      <rect x="30" y="248" width="280" height="62" rx="6"/>
+      <rect x="30" y="328" width="280" height="62" rx="6"/>
+      <rect x="30" y="408" width="280" height="62" rx="6"/>
+    </g>
+
+    <g text-anchor="middle">
+      <text x="170" y="114" font-size="17" font-weight="700">Agent Graph</text>
+      <text x="170" y="137" font-size="14">roles and transitions</text>
+
+      <text x="170" y="194" font-size="17" font-weight="700">Prompt Shape</text>
+      <text x="170" y="217" font-size="14">prefix, suffix, history</text>
+
+      <text x="170" y="274" font-size="17" font-weight="700">Timing</text>
+      <text x="170" y="297" font-size="14">think gap and bursts</text>
+
+      <text x="170" y="354" font-size="17" font-weight="700">Scale</text>
+      <text x="170" y="377" font-size="14">workflows, fanout, events</text>
+
+      <text x="170" y="434" font-size="17" font-weight="700">Generation</text>
+      <text x="170" y="457" font-size="14">max tokens, temperature</text>
+    </g>
+
+    <g stroke="#333333" stroke-width="1.8" fill="none" marker-end="url(#arrow-gray)">
+      <line x1="310" y1="119" x2="350" y2="119"/>
+      <line x1="310" y1="199" x2="350" y2="199"/>
+      <line x1="310" y1="279" x2="350" y2="279"/>
+      <line x1="310" y1="359" x2="350" y2="359"/>
+      <line x1="310" y1="439" x2="350" y2="439"/>
+    </g>
+
+    <rect x="350" y="72" width="690" height="430" rx="8" fill="#ffffff" stroke="#333333" stroke-width="1.8"/>
+    <text x="695" y="112" font-size="25" font-weight="700" text-anchor="middle">Agentic Workload Generator</text>
+    <text x="695" y="139" font-size="16" text-anchor="middle">CPU-side deterministic trace generation</text>
+
+    <g fill="#EDF4FF" stroke="#2F6FED" stroke-width="1.4">
+      <rect x="400" y="162" width="140" height="34" rx="5"/>
+      <rect x="558" y="162" width="142" height="34" rx="5"/>
+      <rect x="718" y="162" width="142" height="34" rx="5"/>
+    </g>
+    <g font-size="14" fill="#2F6FED" font-weight="700" text-anchor="middle">
+      <text x="470" y="184">graph traversal</text>
+      <text x="629" y="184">context re-entry</text>
+      <text x="789" y="184">growing prompt</text>
+    </g>
+
+    <g stroke-width="1.8" fill="#ffffff">
+      <rect x="608" y="244" width="154" height="58" rx="6" stroke="#2F6FED"/>
+      <rect x="430" y="214" width="142" height="56" rx="6" stroke="#2F6FED"/>
+      <rect x="428" y="344" width="146" height="56" rx="6" stroke="#333333" stroke-dasharray="6 5"/>
+      <rect x="796" y="214" width="150" height="56" rx="6" stroke="#2F6FED"/>
+      <rect x="796" y="344" width="150" height="56" rx="6" stroke="#2F6FED"/>
+      <rect x="604" y="412" width="162" height="50" rx="6" stroke="#333333" stroke-dasharray="6 5"/>
+    </g>
+
+    <g text-anchor="middle" font-size="17" font-weight="700">
+      <text x="685" y="279">Planner</text>
+      <text x="501" y="248">Tool Caller</text>
+      <text x="501" y="369">Tool</text>
+      <text x="501" y="390">Observation</text>
+      <text x="871" y="248">Executor</text>
+      <text x="871" y="379">Verifier</text>
+      <text x="685" y="443">Optional Stop</text>
+    </g>
+
+    <g stroke="#2F6FED" stroke-width="2.3" fill="none" marker-end="url(#arrow-blue)">
+      <path d="M608,261 C585,248 586,242 572,242"/>
+      <line x1="501" y1="270" x2="501" y2="344"/>
+      <path d="M574,372 C640,372 650,326 674,302"/>
+      <path d="M762,261 C782,250 778,242 796,242"/>
+      <line x1="871" y1="270" x2="871" y2="344"/>
+      <path d="M796,372 C736,372 724,326 696,302"/>
+    </g>
+
+    <g stroke="#666666" stroke-width="1.6" fill="none" stroke-dasharray="6 5" marker-end="url(#arrow-gray)">
+      <path d="M685,302 C685,340 685,372 685,412"/>
+    </g>
+    <text x="695" y="488" font-size="14" fill="#2F6FED" text-anchor="middle">append outputs / observations into the next prompt</text>
+
+    <line x1="1040" y1="286" x2="1086" y2="286" stroke="#333333" stroke-width="1.8" marker-end="url(#arrow-gray)"/>
+
+    <g transform="translate(1100,216)">
+      <path d="M0,0 L76,0 L108,32 L108,144 L0,144 Z" fill="#ffffff" stroke="#333333" stroke-width="1.6"/>
+      <path d="M76,0 L76,32 L108,32" fill="none" stroke="#333333" stroke-width="1.6"/>
+      <line x1="20" y1="48" x2="76" y2="48" stroke="#333333" stroke-width="1.4"/>
+      <line x1="20" y1="72" x2="86" y2="72" stroke="#333333" stroke-width="1.4"/>
+      <line x1="20" y1="96" x2="70" y2="96" stroke="#333333" stroke-width="1.4"/>
+      <text x="54" y="130" font-size="22" font-weight="700" text-anchor="middle">Trace</text>
+    </g>
+    <text x="1154" y="386" font-size="15" text-anchor="middle">request sequence</text>
+    <text x="1154" y="406" font-size="15" text-anchor="middle">+ metadata</text>
+
+    <line x1="1208" y1="286" x2="1260" y2="286" stroke="#333333" stroke-width="1.8" marker-end="url(#arrow-gray)"/>
+
+    <rect x="1260" y="218" width="260" height="250" rx="8" fill="#ffffff" stroke="#333333" stroke-width="1.8"/>
+    <text x="1390" y="260" font-size="23" font-weight="700" text-anchor="middle">vLLM + LMCache</text>
+    <text x="1390" y="288" font-size="16" text-anchor="middle">real GPU serving</text>
+    <g stroke="#333333" stroke-width="1.5" fill="#ffffff">
+      <rect x="1300" y="320" width="180" height="42" rx="5"/>
+      <rect x="1300" y="378" width="180" height="42" rx="5"/>
+      <rect x="1300" y="436" width="180" height="42" rx="5"/>
+    </g>
+    <g text-anchor="middle" font-size="17" font-weight="700">
+      <text x="1390" y="347">GPU KV</text>
+      <text x="1390" y="405">CPU KV</text>
+      <text x="1390" y="463">Disk KV</text>
+    </g>
+
+    <rect x="1260" y="38" width="260" height="116" rx="8" fill="#ffffff" stroke="#333333" stroke-width="1.8"/>
+    <text x="1390" y="72" font-size="23" font-weight="700" text-anchor="middle">Monitor</text>
+    <text x="1300" y="101" font-size="15">TTFT</text>
+    <text x="1300" y="124" font-size="15">latency</text>
+    <text x="1300" y="147" font-size="15">KV wait</text>
+    <text x="1404" y="101" font-size="15">cache hit</text>
+    <text x="1404" y="124" font-size="15">PCIe</text>
+    <text x="1404" y="147" font-size="15">GPU util</text>
+    <line x1="1390" y1="154" x2="1390" y2="218" stroke="#333333" stroke-width="1.8" marker-end="url(#arrow-gray)"/>
+
+    <rect x="1584" y="246" width="178" height="190" rx="8" fill="#ffffff" stroke="#333333" stroke-width="1.8"/>
+    <text x="1673" y="292" font-size="21" font-weight="700" text-anchor="middle">Profiling</text>
+    <text x="1673" y="318" font-size="21" font-weight="700" text-anchor="middle">Results</text>
+    <text x="1673" y="365" font-size="17" font-weight="700" text-anchor="middle">JSONL / CSV</text>
+    <text x="1673" y="402" font-size="17" font-weight="700" text-anchor="middle">plots</text>
+    <text x="1673" y="429" font-size="17" font-weight="700" text-anchor="middle">summary</text>
+
+    <line x1="1520" y1="342" x2="1584" y2="342" stroke="#333333" stroke-width="1.8" marker-end="url(#arrow-gray)"/>
+    <path d="M1520,96 L1673,96 L1673,246" fill="none" stroke="#333333" stroke-width="1.8" marker-end="url(#arrow-gray)"/>
+  </g>
+</svg>

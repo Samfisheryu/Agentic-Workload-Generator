@@ -36,6 +36,7 @@ def build_payload(
         "temperature": float(event.get("temperature", 0.0)),
         "top_p": float(event.get("top_p", 1.0)),
         "stream": stream,
+        "request_id": event["event_id"],
     }
     if endpoint == "chat":
         payload["messages"] = [{"role": "user", "content": prompt}]
@@ -48,9 +49,12 @@ def build_payload(
     return payload
 
 
-def parse_stream_response(resp: requests.Response) -> tuple[float | None, dict[str, Any] | None]:
+def parse_stream_response(
+    resp: requests.Response,
+) -> tuple[float | None, dict[str, Any] | None, str | None]:
     first_token_ts: float | None = None
     usage: dict[str, Any] | None = None
+    response_id: str | None = None
     for raw_line in resp.iter_lines(decode_unicode=True):
         if not raw_line:
             continue
@@ -63,6 +67,8 @@ def parse_stream_response(resp: requests.Response) -> tuple[float | None, dict[s
             chunk = json.loads(line)
         except json.JSONDecodeError:
             continue
+        if response_id is None and chunk.get("id"):
+            response_id = chunk["id"]
         if chunk.get("usage"):
             usage = chunk["usage"]
         choices = chunk.get("choices") or []
@@ -74,7 +80,7 @@ def parse_stream_response(resp: requests.Response) -> tuple[float | None, dict[s
         if text_piece or delta.get("content"):
             if first_token_ts is None:
                 first_token_ts = time.time()
-    return first_token_ts, usage
+    return first_token_ts, usage, response_id
 
 
 def send_one(
@@ -122,7 +128,7 @@ def send_one(
             usage = body.get("usage")
             response_id = body.get("id")
         else:
-            first_token_ts, usage = parse_stream_response(resp)
+            first_token_ts, usage, response_id = parse_stream_response(resp)
             done_ts = time.time()
     except Exception as exc:
         status = "error"
