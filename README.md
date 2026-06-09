@@ -64,17 +64,15 @@ The configs are meant to describe experiment scenarios, not just parameter prese
 | `sanity_small.json` | Minimal static-prefix smoke test. Use this first to check that trace generation works. It does not try to create realistic agent pressure. |
 | `sanity_growing.json` | Minimal growing-history smoke test. Use this to verify that each workflow step appends synthetic outputs and observations into later prompts. |
 | `pressure_medium.json` | Backend-independent synthetic pressure test using the fallback tokenizer. Useful for quick workload-shape experiments before choosing a real model tokenizer. |
-| `pressure_4090.json` | Moderate local-workstation workload for Qwen3-8B. This is a reasonable first real-backend run when you do not want to immediately stress KV offload. |
-| `pressure_4090_offload.json` | High-concurrency KV pressure workload. It uses many workflows, long prefixes, bursts, and fanout to push the backend toward cache pressure and LMCache offload. |
-| `pressure_4090_offload_stable.json` | Less bursty offload experiment. Use it when you want cleaner measurements and fewer burst-induced tail spikes. |
-| `pressure_4090_retrieve_focus*.json` | Retrieve-focused workloads with lower concurrency and longer reactivation gaps. These are useful when you want to make KV reload behavior easier to observe. |
-| `pressure_4090_growing_history_gap4_wf32_p8k_c24.json` | More agent-like workload: growing history, 32 workflows, 4s think gap, 8K base prefix, capped prompt history, and closed-loop replay. This is the main config for studying agentic re-entry with realistic prompt growth. |
+| `pressure_qwen3_8b_moderate.json` | Moderate Qwen3-8B workload. This is a reasonable first real-backend run when you do not want to immediately stress KV offload. |
+| `pressure_qwen3_8b_offload_high.json` | High-concurrency KV pressure workload. It uses many workflows, long prefixes, bursts, and fanout to push the backend toward cache pressure and offload. |
+| `pressure_qwen3_8b_offload_stable.json` | Less bursty offload experiment. Use it when you want cleaner measurements and fewer burst-induced tail spikes. |
+| `retrieve_focus*.json` | Retrieve-focused workloads with lower concurrency and longer reactivation gaps. These are useful when you want to make KV reload behavior easier to observe. |
+| `growing_history_gap4_wf32_p8k_c24.json` | More agent-like workload: growing history, 32 workflows, 4s think gap, 8K base prefix, capped prompt history, and closed-loop replay. This is the main config for studying agentic re-entry with realistic prompt growth. |
 
 ## Running Experiments
 
-There are two common ways to run experiments.
-
-First, use manual trace replay when you already have a backend running. This is the lightweight path:
+Use manual trace replay when you already have a backend running. This is the intended open-source path because backend startup commands are usually machine-specific.
 
 ```bash
 python generate_trace.py \
@@ -94,19 +92,4 @@ python replay_trace.py \
   --endpoint completions
 ```
 
-This generates a trace, checks its shape, and sends it to an OpenAI-compatible endpoint. It is good for testing a serving backend without also managing backend startup and hardware monitors.
-
-Second, use the LMCache pressure harness when you want a full backend profiling run:
-
-```bash
-CONDA_ENV=your-env-name \
-VLLM_DIR=/path/to/vllm-or-working-directory \
-CUDA_VISIBLE_DEVICES=0,1 \
-CONFIG=configs/pressure_4090_growing_history_gap4_wf32_p8k_c24.json \
-REPLAY_MODE=closed-loop \
-./run_lmcache_offload_pressure.sh
-```
-
-This script starts `vLLM + LMCache`, enables CPU/disk KV tiers, generates the trace, replays it, runs vLLM/LMCache/GPU/PCIe/CPU monitors, summarizes KV wait traces when available, and writes plots under `results/<run_id>/`. If your environment is already active, omit `CONDA_ENV`. If `vllm` is installed as a normal executable, `VLLM_DIR` can be any working directory.
-
-The harness is mainly for KV-cache and offload experiments. For a pure client-side workload test, prefer manual trace replay against an already-running backend.
+This generates a trace, checks its shape, and sends it to an OpenAI-compatible endpoint. Use `--mode closed-loop` for agent-like replay, where each workflow waits for the previous step to finish before sending the next one. Use `--mode open-loop` for fixed-arrival-rate pressure tests.
